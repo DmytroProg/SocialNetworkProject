@@ -1,5 +1,5 @@
 var builder = WebApplication.CreateBuilder(args);
-
+//hellp ya durachok!
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
