@@ -1,4 +1,12 @@
+using SocialNetwork.Core.Interfaces;
+using SocialNetwork.Core.Services;
+using SocialNetwork.Storage;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped<IRepository, Repository>();
+builder.Services.AddScoped<IUserService, UserService>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

@@ -12,7 +12,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
+      <ProjectReference Include="..\SocialNetwork.Core\SocialNetwork.Core.csproj" />
+      <ProjectReference Include="..\SocialNetwork.Storage\SocialNetwork.Storage.csproj" />
     </ItemGroup>
 
 </Project>
