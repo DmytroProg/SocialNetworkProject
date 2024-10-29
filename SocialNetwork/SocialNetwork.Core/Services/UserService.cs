@@ -1,6 +1,8 @@
 ﻿using SocialNetwork.Core.Interfaces;
 using SocialNetwork.Core.Models;
+using SocialNetwork.Core.Helpers;
 using System.Text.RegularExpressions;
+using System;
 namespace SocialNetwork.Core.Services;
 public class UserService : IUserService
 {
@@ -25,6 +27,7 @@ public class UserService : IUserService
             throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
         var users = GetUsers().ToList();
         var index = users.IndexOf(users.First(unit => unit.Id == user.Id));
+        users[index].Password = HashManager.HashCreate(users[index].Password);
         users[index] = user;
     }
     public User LogIn(User user)
@@ -41,6 +44,7 @@ public class UserService : IUserService
     {
         if (!IsUserValid(user))
             throw new Exception("User credentials aren't valid"); // TODO own types of exceptions
+        user.Password = HashManager.HashCreate(user.Password);
         GetUsers().ToList().Add(user);
         return user;
     }
