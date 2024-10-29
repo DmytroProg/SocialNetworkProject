@@ -9,7 +9,7 @@ public class UserService : IUserService
     // TODO repository
     public IEnumerable<User> GetUsers() 
     {
-        return new List<User>(); // return data from repository
+        return new List<User>(); // TODO return data from repository
     }
     public User? GetUserById(int id)
     {
@@ -43,7 +43,7 @@ public class UserService : IUserService
     public User SignUp(User user)
     {
         if (!IsUserValid(user))
-            throw new Exception("User credentials aren't valid"); // TODO own types of exceptions
+            throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
         user.Password = HashManager.HashCreate(user.Password);
         GetUsers().ToList().Add(user);
         return user;
