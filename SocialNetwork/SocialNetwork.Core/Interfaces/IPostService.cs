@@ -9,9 +9,8 @@ namespace SocialNetwork.Core.Interfaces
 {
     public interface IPostService
     {
-        public List<Post> Posts { get; set; }
-        public void CreatePost(Post post);
-        public List<Post> GetPosts();
-        public Post? GetPostById(int id);
+        public IEnumerable<Post> GetPosts();
+        public Task<Post> CreatePost(Post post);
+        public Task<Post> GetPostById(int id);
     }
 }

@@ -7,26 +7,27 @@ namespace SocialNetwork.Core.Services
 {
     public class PostService : IPostService
     {
-        // TODO repository
-        public List<Post> Posts { get; set; }
-        public PostService()
+        private readonly IRepository repository;
+        public PostService(IRepository repository)
         {
-            Posts = new List<Post>();
+            this.repository = repository;
         }
-        public void CreatePost(Post post)
+        public IEnumerable<Post> GetPosts()
+        {
+            return repository.GetAll<Post>();
+        }
+        public async Task<Post> CreatePost(Post post)
         {
             if (post.Description == null || post.LikesCount < 0)
-                throw new Exception("Invalid post build");  // TODO own types of exceptions
-            Posts.Add(post);
+                throw new ArgumentException("Invalid post build");  // TODO own types of exceptions
+            return await repository.Add(post);
         }
-        public Post? GetPostById(int id)
+        public async Task<Post> GetPostById(int id)
         {
-            Post? post = Posts.FirstOrDefault(unit => unit.Id == id);
+            Post? post = await repository.GetById<Post>(id);
+            if (post == null)
+                throw new ArgumentException("Post not found");    // TODO own types of exceptions
             return post;
-        }
-        public List<Post> GetPosts()
-        {
-            return Posts;
         }
     }
 }
