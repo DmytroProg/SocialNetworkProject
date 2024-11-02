@@ -18,7 +18,7 @@ public class Repository : IRepository
         throw new NotImplementedException();
     }
 
-    public Task<T> GetById<T>(int id) where T : class
+    public Task<T?> GetById<T>(int id) where T : class
     {
         throw new NotImplementedException();
     }
