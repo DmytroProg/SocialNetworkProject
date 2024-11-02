@@ -3,28 +3,39 @@ using System.Collections.Generic;
 using System.Linq;
 using SocialNetwork.Core.Interfaces;
 using SocialNetwork.Core.Models;
+using Microsoft.EntityFrameworkCore;
 namespace SocialNetwork.Core.Services
 {
     public class PostService : IPostService
     {
-        private readonly IRepository repository;
+        private readonly IRepository _repository;
         public PostService(IRepository repository)
         {
-            this.repository = repository;
+            _repository = repository;
         }
-        public IEnumerable<Post> GetPosts()
+        public async Task<IEnumerable<Post>> GetPosts(string? nick_name, int skip, int take)
         {
-            return repository.GetAll<Post>();
+            if(nick_name == null)
+                return await _repository.GetAll<Post>().
+                    Skip(skip).
+                    Take(take).
+                    ToListAsync();
+            return await _repository.GetAll<Post>().
+                Include(p => p.User).
+                OrderBy(p => p.User.Nickname).
+                Skip(skip).
+                Take(take).
+                ToListAsync();
         }
-        public async Task<Post> CreatePost(Post post)
+        public Task<Post> CreatePost(Post post)
         {
             if (post.Description == null || post.LikesCount < 0)
                 throw new ArgumentException("Invalid post build");  // TODO own types of exceptions
-            return await repository.Add(post);
+            return _repository.Add(post);
         }
         public async Task<Post> GetPostById(int id)
         {
-            Post? post = await repository.GetById<Post>(id);
+            var post = await _repository.GetById<Post>(id);
             if (post == null)
                 throw new ArgumentException("Post not found");    // TODO own types of exceptions
             return post;
