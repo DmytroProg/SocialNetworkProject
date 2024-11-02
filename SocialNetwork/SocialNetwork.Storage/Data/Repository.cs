@@ -16,22 +16,24 @@ public class Repository : IRepository
         return _socialNetworkContext.Set<T>();
     }
 
-    public void Add<T>(T entity) where T : class 
+    public async Task<T> Add<T>(T entity) where T : class 
     {
         _socialNetworkContext.Add(entity);
-        _socialNetworkContext.SaveChanges();
+        await _socialNetworkContext.SaveChangesAsync();
+        return entity;
     }
 
-    public void Update<T>(T entity, int id) where T : class
+    public async Task<T> Update<T>(T new_data, int id) where T : class
     {
-        var Entity = GetById<T>(id);
-        _socialNetworkContext.Entry(Entity).CurrentValues.SetValues(entity);
-        _socialNetworkContext.SaveChanges();
+        var entity = await GetById<T>(id);
+        _socialNetworkContext.Entry(entity).CurrentValues.SetValues(new_data);
+        await _socialNetworkContext.SaveChangesAsync();
+        return entity;
     }
 
-    public T GetById<T>(int id) where T : class
+    public async Task<T> GetById<T>(int id) where T : class
     {
-        var entity = _socialNetworkContext.Set<T>().Find(id);
+        var entity = await _socialNetworkContext.Set<T>().FindAsync(id);
 
         if (entity == null)
         {
@@ -41,12 +43,11 @@ public class Repository : IRepository
         return entity;
     }
 
-    public void Delete<T>(int id) where T : class 
+    public async Task<T> Delete<T>(int id) where T : class 
     {
-        var entity = GetById<T>(id);
-
+        var entity = await GetById<T>(id);
         _socialNetworkContext.Set<T>().Remove(entity);
-
-        _socialNetworkContext.SaveChanges();
+        await _socialNetworkContext.SaveChangesAsync();
+        return entity;
     }
 }

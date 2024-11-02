@@ -12,7 +12,7 @@ using SocialNetwork.API.Data;
 namespace SocialNetwork.Storage.Migrations
 {
     [DbContext(typeof(SocialNetworkContext))]
-    [Migration("20241101160234_User")]
+    [Migration("20241102173914_User")]
     partial class User
     {
         /// <inheritdoc />
