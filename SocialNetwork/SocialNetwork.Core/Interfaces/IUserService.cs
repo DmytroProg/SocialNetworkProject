@@ -3,10 +3,11 @@ namespace SocialNetwork.Core.Interfaces;
 public interface IUserService
 {
     IEnumerable<User> GetUsers();
-    User? GetUserById(int id);
-    User? GetUserByName(string name);
-    void UpdateUser(User user);
-    User LogIn(User user);
-    User LogOut(User user);
-    User SignUp(User user);
+    Task<User> GetUserById(int id);
+    Task<User?> GetUserByName(string name);
+    Task<User> UpdateUser(int id, User user);
+    Task<User> LogIn(User user);
+    Task<User> LogOut(User user);
+    Task<User> SignUp(User user);
+    Task DeleteUser(int id);
 }

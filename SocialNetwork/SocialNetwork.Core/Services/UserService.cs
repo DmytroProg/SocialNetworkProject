@@ -2,51 +2,61 @@
 using SocialNetwork.Core.Models;
 using SocialNetwork.Core.Helpers;
 using System.Text.RegularExpressions;
-using System;
+using Microsoft.EntityFrameworkCore;
 namespace SocialNetwork.Core.Services;
 public class UserService : IUserService
 {
-    // TODO repository
+    private readonly IRepository repository;
+    public UserService(IRepository repository)
+    {
+        this.repository = repository;
+    }
     public IEnumerable<User> GetUsers() 
     {
-        return new List<User>(); // TODO return data from repository
+        return repository.GetAll<User>();
     }
-    public User? GetUserById(int id)
+    public async Task<User> GetUserById(int id)
     {
-        var user = GetUsers().FirstOrDefault(unit => unit.Id == id);
+        var user = await repository.GetById<User>(id);
+        if (user == null)
+            throw new ArgumentException("User not found"); // TODO own types of exceptions
         return user;
     }
-    public User? GetUserByName(string name)
+    public async Task<User?> GetUserByName(string name)
     {
-        var user = GetUsers().FirstOrDefault(unit => unit.Nickname == name);
+        var users = repository.GetAll<User>();
+        var user = await users.FirstOrDefaultAsync(u => u.Nickname == name);
+        if (user == null)
+            throw new ArgumentException("User not found"); // TODO own types of exceptions
         return user;
     }
-    public void UpdateUser(User user)
-    {
-        if (!IsUserValid(user))
-            throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
-        var users = GetUsers().ToList();
-        var index = users.IndexOf(users.First(unit => unit.Id == user.Id));
-        users[index].Password = HashManager.HashCreate(users[index].Password);
-        users[index] = user;
-    }
-    public User LogIn(User user)
-    {
-        user.IsLoggedIn = true;   // TODO save in repository
-        return user;
-    }
-    public User LogOut(User user)
-    {
-        user.IsLoggedIn = false;   // TODO save in repository
-        return user;
-    }
-    public User SignUp(User user)
+    public async Task<User> UpdateUser(int id, User user)
     {
         if (!IsUserValid(user))
             throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
         user.Password = HashManager.HashCreate(user.Password);
-        GetUsers().ToList().Add(user);
-        return user;
+        return await repository.Update<User>(user,id);
+    }
+    public async Task<User> LogIn(User user)
+    {
+        user.IsLoggedIn = true;   
+        return await repository.Update<User>(user, user.Id);
+    }
+    public async Task<User> LogOut(User user)
+    {
+        user.IsLoggedIn = false;   
+        return await repository.Update<User>(user, user.Id);
+    }
+    public async Task<User> SignUp(User user)
+    {
+        if (!IsUserValid(user))
+            throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
+        user.Password = HashManager.HashCreate(user.Password);
+        return await repository.Add(user);
+    }
+    public async Task DeleteUser(int id)
+    {
+        await repository.Delete<User>(id);
     }
     #region Validation logic
     private bool IsUserValid(User user)
