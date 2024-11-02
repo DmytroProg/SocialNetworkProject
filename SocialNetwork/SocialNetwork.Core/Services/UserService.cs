@@ -6,53 +6,55 @@ using Microsoft.EntityFrameworkCore;
 namespace SocialNetwork.Core.Services;
 public class UserService : IUserService
 {
-    private readonly IRepository repository;
+    private readonly IRepository _repository;
     public UserService(IRepository repository)
     {
-        this.repository = repository;
+        _repository = repository;
     }
-    public IEnumerable<User> GetUsers() 
+    public async Task<IEnumerable<User>> GetUsers(int skip, int take) 
     {
-        return repository.GetAll<User>();
+        return await _repository.GetAll<User>()
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync();
     }
     public async Task<User> GetUserById(int id)
     {
-        var user = await repository.GetById<User>(id);
+        var user = await _repository.GetById<User>(id);
         if (user == null)
             throw new ArgumentException("User not found"); // TODO own types of exceptions
         return user;
     }
     public async Task<User?> GetUserByName(string name)
     {
-        var users = repository.GetAll<User>();
-        var user = await users.FirstOrDefaultAsync(u => u.Nickname == name);
+        var user = await _repository.GetAll<User>().SingleOrDefaultAsync(u => u.Nickname == name);
         if (user == null)
             throw new ArgumentException("User not found"); // TODO own types of exceptions
         return user;
     }
-    public async Task<User> UpdateUser(int id, User user)
+    public Task<User> UpdateUser(int id, User user)
     {
         if (!IsUserValid(user))
             throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
         user.Password = HashManager.HashCreate(user.Password);
-        return await repository.Update<User>(user,id);
+        return _repository.Update<User>(user,id);
     }
-    public async Task<User> LogIn(User user)
+    public Task<User> LogIn(User user)
     {
         user.IsLoggedIn = true;   
-        return await repository.Update<User>(user, user.Id);
+        return _repository.Update<User>(user, user.Id);
     }
-    public async Task<User> LogOut(User user)
+    public Task LogOut(User user)
     {
         user.IsLoggedIn = false;   
-        return await repository.Update<User>(user, user.Id);
+        return _repository.Update<User>(user, user.Id);
     }
-    public async Task<User> SignUp(User user)
+    public Task<User> SignUp(User user)
     {
         if (!IsUserValid(user))
             throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
         user.Password = HashManager.HashCreate(user.Password);
-        return await repository.Add(user);
+        return _repository.Add(user);
     }
     #region Validation logic
     private bool IsUserValid(User user)
