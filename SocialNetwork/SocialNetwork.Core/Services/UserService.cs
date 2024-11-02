@@ -54,10 +54,6 @@ public class UserService : IUserService
         user.Password = HashManager.HashCreate(user.Password);
         return await repository.Add(user);
     }
-    public async Task DeleteUser(int id)
-    {
-        await repository.Delete<User>(id);
-    }
     #region Validation logic
     private bool IsUserValid(User user)
     {

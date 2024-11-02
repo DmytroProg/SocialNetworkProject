@@ -9,5 +9,4 @@ public interface IUserService
     Task<User> LogIn(User user);
     Task<User> LogOut(User user);
     Task<User> SignUp(User user);
-    Task DeleteUser(int id);
 }
