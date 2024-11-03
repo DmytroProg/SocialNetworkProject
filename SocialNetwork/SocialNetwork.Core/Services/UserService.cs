@@ -16,7 +16,7 @@ public class UserService : IUserService
         return await _repository.GetAll<User>()
             .Skip(skip)
             .Take(take)
-            .ToListAsync();
+            .ToArrayAsync();
     }
     public async Task<User> GetUserById(int id)
     {
