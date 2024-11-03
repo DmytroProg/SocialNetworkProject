@@ -39,15 +39,21 @@ public class UserService : IUserService
         user.Password = HashManager.HashCreate(user.Password);
         return _repository.Update<User>(user,id);
     }
-    public Task<User> LogIn(User user)
+    public async Task<User> LogIn(int id)
     {
-        user.IsLoggedIn = true;   
-        return _repository.Update<User>(user, user.Id);
+        var targetUser = await _repository.GetById<User>(id);
+        if (targetUser == null)
+            throw new ArgumentException("User not found");
+        targetUser.IsLoggedIn = true;   
+        return await _repository.Update<User>(targetUser, id);
     }
-    public Task LogOut(User user)
+    public async Task LogOut(int id)
     {
-        user.IsLoggedIn = false;   
-        return _repository.Update<User>(user, user.Id);
+        var targetUser = await _repository.GetById<User>(id);
+        if (targetUser == null)
+            throw new ArgumentException("User not found");
+        targetUser.IsLoggedIn = false;
+        await _repository.Update<User>(targetUser, id);
     }
     public Task<User> SignUp(User user)
     {
