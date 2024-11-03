@@ -43,11 +43,10 @@ public class Repository : IRepository
         return entity;
     }
 
-    public async Task<T> Delete<T>(int id) where T : class 
+    public async Task Delete<T>(int id) where T : class 
     {
         var entity = await GetById<T>(id);
         _socialNetworkContext.Set<T>().Remove(entity);
         await _socialNetworkContext.SaveChangesAsync();
-        return entity;
     }
 }
