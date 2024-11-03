@@ -9,7 +9,7 @@ namespace SocialNetwork.Core.Interfaces
 {
     public interface IPostService
     {
-        public Task<IEnumerable<Post>> GetPosts(string? nick_name, int skip, int take);
+        public Task<IEnumerable<Post>> GetPosts(bool isNiknameFiltered, int skip, int take);
         public Task<Post> CreatePost(Post post);
         public Task<Post> GetPostById(int id);
     }

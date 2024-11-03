@@ -13,10 +13,11 @@ namespace SocialNetwork.Core.Services
         {
             _repository = repository;
         }
-        public async Task<IEnumerable<Post>> GetPosts(string? nick_name, int skip, int take)
+        public async Task<IEnumerable<Post>> GetPosts(bool isNiknameFiltered, int skip, int take)
         {
-            if(nick_name == null)
+            if(!isNiknameFiltered)
                 return await _repository.GetAll<Post>().
+                    OrderBy(p => p.LikesCount).
                     Skip(skip).
                     Take(take).
                     ToListAsync();
