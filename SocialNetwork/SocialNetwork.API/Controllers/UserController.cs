@@ -14,38 +14,38 @@ public class UserController : ControllerBase
         _service = service;
     }
     #region Get Methods
-    [HttpGet("all")]
+    [HttpGet]
     public async Task<ActionResult<IEnumerable<User>>> GetAllUsers([FromQuery] int skip = 0, [FromQuery] int take = 10)
     {
         try
         {
             return Ok( await _service.GetUsers(skip, take));
         }
-        catch(Exception ex)
+        catch(ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
     }
-    [HttpGet("id")]
+    [HttpGet("id/{id}")]
     public async Task<ActionResult<User>> GetUserbyId([FromRoute] int id)
     {
         try
         {
             return Ok(await _service.GetUserById(id));
         }
-        catch (Exception ex)
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
     }
-    [HttpGet("name")]
+    [HttpGet("name/{name}")]
     public async Task<ActionResult<User>> GetUserbyName([FromRoute] string name)
     {
         try
         {
             return Ok(await _service.GetUserByName(name));
         }
-        catch (Exception ex)
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
@@ -60,7 +60,7 @@ public class UserController : ControllerBase
             var createdUser = await _service.SignUp(user);
             return Created(Url.Action(nameof(GetUserbyId), new { id = createdUser.Id }), createdUser);
         }
-        catch (Exception ex)
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
@@ -75,26 +75,26 @@ public class UserController : ControllerBase
             var updatedUser = await _service.UpdateUser(id, user);
             return Created(Url.Action(nameof(GetUserbyId), new { id = updatedUser.Id }), updatedUser);
         }
-        catch(Exception ex)
+        catch(ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
     }
     #endregion
     #region Patch Methods
-    [HttpPatch("log_in/user")]
+    [HttpPatch("login")]
     public async Task<ActionResult<User>> LogInUser([FromRoute]int id)
     {
         try
         {
             return Ok( await _service.LogIn(id));
         }
-        catch (Exception ex)
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
     }
-    [HttpPatch("log_out/user")]
+    [HttpPatch("logout")]
     public async Task<ActionResult> LogOutUser([FromRoute] int id)
     {
         try
@@ -102,7 +102,7 @@ public class UserController : ControllerBase
             await _service.LogOut(id);
             return Ok();
         }
-        catch (Exception ex)
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
