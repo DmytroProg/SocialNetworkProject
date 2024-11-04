@@ -6,5 +6,5 @@ public interface IRepository
     public Task<T> Add<T>(T entity) where T : class;
     public Task<T> Update<T>(T entity, int id) where T: class;
     public Task<T> GetById<T>(int id) where T : class;
-    public Task<T> Delete<T>(int id) where T : class;
+    public Task Delete<T>(int id) where T : class;
 }
