@@ -15,10 +15,12 @@ public class UserController : ControllerBase
     }
     #region Get Methods
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<User>>> GetAllUsers([FromQuery] int skip = 0, [FromQuery] int take = 10)
+    public async Task<ActionResult<IEnumerable<User>>> GetAllUsers([FromQuery] string? name = null, [FromQuery] int skip = 0, [FromQuery] int take = 10)
     {
         try
         {
+            if(name != null)
+                return Ok(await _service.GetUserByName(name));
             return Ok( await _service.GetUsers(skip, take));
         }
         catch(ArgumentException ex)
@@ -26,24 +28,12 @@ public class UserController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
-    [HttpGet("id/{id}")]
+    [HttpGet("{id}")]
     public async Task<ActionResult<User>> GetUserbyId([FromRoute] int id)
     {
         try
         {
             return Ok(await _service.GetUserById(id));
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
-    [HttpGet("name/{name}")]
-    public async Task<ActionResult<User>> GetUserbyName([FromRoute] string name)
-    {
-        try
-        {
-            return Ok(await _service.GetUserByName(name));
         }
         catch (ArgumentException ex)
         {
