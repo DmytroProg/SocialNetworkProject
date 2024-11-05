@@ -13,6 +13,7 @@ namespace SocialNetwork.Core.Models
         public int UserId { get; set; }
         public Post Post { get; set; }
         public User User { get; set; }
+        [Required(ErrorMessage = "Comment can't be empty")]
         public string Text { get; set; }
         public DateTime CreatedAt { get; set; }
     }
