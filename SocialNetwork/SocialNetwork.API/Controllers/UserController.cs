@@ -16,36 +16,36 @@ public class UserController : ControllerBase
     }
 
     // localhost:port/api/users?take={take}&skip={skip}
-    [HttpGet]
-    public ActionResult<IEnumerable<User>> GetUsers([FromQuery]int skip = 0, [FromQuery]int take = 20)
-    {
-        return Ok(_userService.GetAllUsers(skip, take));
-    }
+    //[HttpGet]
+    //public ActionResult<IEnumerable<User>> GetUsers([FromQuery]int skip = 0, [FromQuery]int take = 20)
+    //{
+    //    return Ok(_userService.GetAllUsers(skip, take));
+    //}
 
-    [HttpPost]
-    public async Task<ActionResult<User>> AddUser([FromBody]User user)
-    {
-        // validation
+    //[HttpPost]
+    //public async Task<ActionResult<User>> AddUser([FromBody]User user)
+    //{
+    //    // validation
         
-        await _userService.AddUser(user);
-        return Created($"users/{1}", user);
-    }
+    //    await _userService.AddUser(user);
+    //    return Created($"users/{1}", user);
+    //}
 
-    //localhost:port/api/users/{id}
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteUser([FromRoute]int id)
-    {
-        await _userService.DeleteUser(id);
-        return NoContent();
-    }
+    ////localhost:port/api/users/{id}
+    //[HttpDelete("{id}")]
+    //public async Task<ActionResult> DeleteUser([FromRoute]int id)
+    //{
+    //    await _userService.DeleteUser(id);
+    //    return NoContent();
+    //}
 
-    //localhost:port/api/users/{id}/
-    [HttpPut("{id}")]
-    public async Task<ActionResult<User>> UpdateUser([FromRoute]int id, [FromBody]User user)
-    {
-        user.Id = id;
-        await _userService.UpdateUser(user);
+    ////localhost:port/api/users/{id}/
+    //[HttpPut("{id}")]
+    //public async Task<ActionResult<User>> UpdateUser([FromRoute]int id, [FromBody]User user)
+    //{
+    //    user.Id = id;
+    //    await _userService.UpdateUser(user);
 
-        return Ok(user);
-    }
+    //    return Ok(user);
+    //}
 }

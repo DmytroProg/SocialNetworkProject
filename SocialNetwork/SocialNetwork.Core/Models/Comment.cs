@@ -7,9 +7,9 @@ namespace SocialNetwork.Core.Models
     {
         [Key]
         public int Id { get; set; }
-        [ForeignKey]
+        [ForeignKey(nameof(Post))]
         public int PostId { get; set; }
-        [ForeignKey]
+        [ForeignKey (nameof(User))]
         public int UserId { get; set; }
         public Post Post { get; set; }
         public User User { get; set; }
