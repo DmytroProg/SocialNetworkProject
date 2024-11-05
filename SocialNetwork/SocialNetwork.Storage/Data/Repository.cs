@@ -31,7 +31,7 @@ public class Repository : IRepository
         return entity;
     }
 
-    public async Task<T> GetById<T>(int id) where T : class
+    public async Task<T?> GetById<T>(int id) where T : class
     {
         var entity = await _socialNetworkContext.Set<T>().FindAsync(id);
 
