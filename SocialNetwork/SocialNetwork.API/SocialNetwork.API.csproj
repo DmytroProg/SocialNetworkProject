@@ -20,8 +20,4 @@
       <ProjectReference Include="..\SocialNetwork.Storage\SocialNetwork.Storage.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Controllers\" />
-    </ItemGroup>
-
 </Project>
