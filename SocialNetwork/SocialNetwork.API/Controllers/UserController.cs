@@ -58,7 +58,7 @@ public class UserController : ControllerBase
     #endregion
     #region Put Methods
     [HttpPut]
-    public async Task<ActionResult<User>> UpdateUser(int id, User user)
+    public async Task<ActionResult<User>> UpdateUser([FromRoute] int id, [FromBody]User user)
     {
         try
         {
