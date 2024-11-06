@@ -28,7 +28,7 @@ public class UserService : IUserService
     public async Task<IEnumerable<User>> GetUsersByName(string name, int skip, int take)
     {
         return await _repository.GetAll<User>()
-            .Where(u => u.Nickname == name)
+            .Where(u => u.Nickname.Contains(name))
             .Skip(skip)
             .Take(take)
             .ToArrayAsync();
