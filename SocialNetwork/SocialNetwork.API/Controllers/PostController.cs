@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.Core.DTOs;
 using SocialNetwork.Core.Interfaces;
 using SocialNetwork.Core.Models;
 
@@ -10,16 +12,19 @@ namespace SocialNetwork.API.Controllers
     public class PostController : ControllerBase
     {
         private readonly IPostService _service;
-        public PostController(IPostService service)
+        private readonly IMapper _mapper;
+        public PostController(IPostService service, IMapper mapper)
         {
             _service = service;
+            _mapper = mapper;
         }
-        [HttpGet("filtered/{isFildered}")]
-        public async Task<ActionResult<IEnumerable<Post>>> GetPosts([FromRoute] bool isFiltered, [FromQuery] int skip, [FromQuery] int take)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<PostDTO>>> GetPosts([FromQuery] bool isFiltered, [FromQuery] int skip, [FromQuery] int take)
         {
             try
             {
-                return Ok(await _service.GetPosts(isFiltered, skip, take));
+                var posts = await _service.GetPosts(isFiltered, skip, take);
+                return Ok(posts.Select(_mapper.Map<PostDTO>));
             }
             catch(ArgumentException ex)
             {
@@ -27,11 +32,11 @@ namespace SocialNetwork.API.Controllers
             }
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<Post>> GetPostById([FromRoute] int id)
+        public async Task<ActionResult<PostDTO>> GetPostById([FromRoute] int id)
         {
             try
             {
-                return Ok(await _service.GetPostById(id));
+                return Ok(_mapper.Map<PostDTO>(await _service.GetPostById(id)));
             }
             catch (ArgumentException ex)
             {
@@ -39,11 +44,11 @@ namespace SocialNetwork.API.Controllers
             }
         }
         [HttpPost]
-        public async Task<ActionResult<Post>> CreatePost([FromBody] Post post)
+        public async Task<ActionResult<PostDTO>> CreatePost([FromBody] PostDTO postDto)
         {
             try
             {
-                return Created(Url.Action(nameof(GetPostById)), await _service.CreatePost(post));
+                return Created(Url.Action(nameof(GetPostById)),_mapper.Map<PostDTO>(await _service.CreatePost(_mapper.Map<Post>(postDto))));
             }
             catch (ArgumentException ex)
             {
