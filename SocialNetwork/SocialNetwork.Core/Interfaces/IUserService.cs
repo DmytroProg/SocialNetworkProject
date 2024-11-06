@@ -6,7 +6,7 @@ public interface IUserService
     Task<User> GetUserById(int id);
     Task<IEnumerable<User>> GetUsersByName(string name, int skip, int take);
     Task<User> UpdateUser(int id, User user);
-    Task<User> LogIn(User user);
-    Task LogOut(User user);
+    Task<User> LogIn(int id);
+    Task LogOut(int id);
     Task<User> SignUp(User user);
 }
