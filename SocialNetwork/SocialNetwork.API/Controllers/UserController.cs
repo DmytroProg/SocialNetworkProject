@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.Core.DTOs;
 using SocialNetwork.Core.Interfaces;
 using SocialNetwork.Core.Models;
 using System.Xml.Linq;
@@ -8,20 +10,26 @@ namespace SocialNetwork.API.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _service;
+    private readonly IMapper _mapper;
 
-    public UserController(IUserService service)
+    public UserController(IUserService service, IMapper mapper)
     {
         _service = service;
+        _mapper = mapper;
     }
     #region Get Methods
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<User>>> GetAllUsers([FromQuery] string? name = null, [FromQuery] int skip = 0, [FromQuery] int take = 10)
+    public async Task<ActionResult<IEnumerable<UserDTO>>> GetAllUsers([FromQuery] string? name = null, [FromQuery] int skip = 0, [FromQuery] int take = 10)
     {
         try
         {
-            if(name != null)
-                return Ok(await _service.GetUserByName(name));
-            return Ok( await _service.GetUsers(skip, take));
+            if (name != null)
+            {
+                var namedUsers = await _service.GetUsersByName(name, skip, take);
+                return Ok(namedUsers.Select(_mapper.Map<UserDTO>));
+            }
+            var users = await _service.GetUsers(skip, take);
+            return Ok(users.Select(_mapper.Map<UserDTO>));
         }
         catch(ArgumentException ex)
         {
@@ -29,11 +37,11 @@ public class UserController : ControllerBase
         }
     }
     [HttpGet("{id}")]
-    public async Task<ActionResult<User>> GetUserbyId([FromRoute] int id)
+    public async Task<ActionResult<UserDTO>> GetUserbyId([FromRoute] int id)
     {
         try
         {
-            return Ok(await _service.GetUserById(id));
+            return Ok(_mapper.Map<UserDTO>(await _service.GetUserById(id)));
         }
         catch (ArgumentException ex)
         {
@@ -43,12 +51,12 @@ public class UserController : ControllerBase
     #endregion
     #region Post Methods
     [HttpPost]
-    public async Task<ActionResult<User>> CreateUser([FromBody]User user)
+    public async Task<ActionResult<UserDTO>> CreateUser([FromBody]UserDTO userDto)
     {
         try
         {
-            var createdUser = await _service.SignUp(user);
-            return Created(Url.Action(nameof(GetUserbyId), new { id = createdUser.Id }), createdUser);
+            var createdUser = await _service.SignUp(_mapper.Map<User>(userDto));
+            return Created(Url.Action(nameof(GetUserbyId), new { id = createdUser.Id }), userDto);
         }
         catch (ArgumentException ex)
         {
@@ -58,12 +66,12 @@ public class UserController : ControllerBase
     #endregion
     #region Put Methods
     [HttpPut]
-    public async Task<ActionResult<User>> UpdateUser([FromRoute] int id, [FromBody]User user)
+    public async Task<ActionResult<UserDTO>> UpdateUser([FromRoute] int id, [FromBody]UserDTO userDto)
     {
         try
         {
-            var updatedUser = await _service.UpdateUser(id, user);
-            return Created(Url.Action(nameof(GetUserbyId), new { id = updatedUser.Id }), updatedUser);
+            var updatedUser = await _service.UpdateUser(id, _mapper.Map<User>(userDto));
+            return Created(Url.Action(nameof(GetUserbyId), new { id = updatedUser.Id }), userDto);
         }
         catch(ArgumentException ex)
         {
@@ -73,11 +81,11 @@ public class UserController : ControllerBase
     #endregion
     #region Patch Methods
     [HttpPatch("login")]
-    public async Task<ActionResult<User>> LogInUser([FromRoute]int id)
+    public async Task<ActionResult<UserDTO>> LogInUser([FromRoute]int id)
     {
         try
         {
-            return Ok( await _service.LogIn(id));
+            return Ok( _mapper.Map<UserDTO>(await _service.LogIn(id)));
         }
         catch (ArgumentException ex)
         {

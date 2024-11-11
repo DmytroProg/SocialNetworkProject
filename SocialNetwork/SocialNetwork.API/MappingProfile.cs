@@ -11,6 +11,7 @@ namespace SocialNetwork.API
             CreateMap<Post, PostDTO>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.User.Id))
                 .ReverseMap();
+            CreateMap<User, UserDTO>().ReverseMap();
         }
     }
 }
