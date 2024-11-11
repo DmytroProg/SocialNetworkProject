@@ -25,12 +25,13 @@ public class UserService : IUserService
             throw new ArgumentException("User not found"); // TODO own types of exceptions
         return user;
     }
-    public async Task<User?> GetUserByName(string name)
+    public async Task<IEnumerable<User>> GetUsersByName(string name, int skip, int take)
     {
-        var user = await _repository.GetAll<User>().SingleOrDefaultAsync(u => u.Nickname == name);
-        if (user == null)
-            throw new ArgumentException("User not found"); // TODO own types of exceptions
-        return user;
+        return await _repository.GetAll<User>()
+            .Where(u => u.Nickname.Contains(name))
+            .Skip(skip)
+            .Take(take)
+            .ToArrayAsync();
     }
     public Task<User> UpdateUser(int id, User user)
     {
@@ -44,7 +45,7 @@ public class UserService : IUserService
         var targetUser = await _repository.GetById<User>(id);
         if (targetUser == null)
             throw new ArgumentException("User not found");
-        targetUser.IsLoggedIn = true;   
+        targetUser.IsLoggedIn = true;
         return await _repository.Update<User>(targetUser, id);
     }
     public async Task LogOut(int id)
