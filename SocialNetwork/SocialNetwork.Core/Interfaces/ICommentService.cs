@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SocialNetwork.Core.Models;
 
 namespace SocialNetwork.Core.Interfaces
 {
-    internal class ICommentService
+    internal interface ICommentService
     {
+        Task<Comment> AddComment(Comment comment);
+        Task<Comment> GetComment(int id);
     }
 }
