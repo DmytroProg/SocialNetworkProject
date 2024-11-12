@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using SocialNetwork.Core.DTOs;
 using SocialNetwork.Core.Interfaces;
 using SocialNetwork.Core.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -20,12 +21,11 @@ namespace SocialNetwork.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Comment>> GetCommentById ([FromRoute] int id)
+        public async Task<ActionResult<CommentDTO>> GetCommentById ([FromRoute] int id)
         {
             try
             {
-                var comment = await _service.GetComment(id);
-                return Ok(comment);
+                return Ok(_mapper.Map<CommentDTO>(await _service.GetComment(id)));
             }
             catch (ArgumentException ex)
             {
@@ -34,12 +34,11 @@ namespace SocialNetwork.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Comment>> AddComment([FromBody]Comment bodyComment)
+        public async Task<ActionResult<CommentDTO>> AddComment([FromBody]CreateCommentDTO createCommentDTO)
         {
             try
             {
-                var comment = await _service.AddComment(bodyComment);
-                return Created(Url.Action(nameof(GetCommentById)), comment);
+                return Created(Url.Action(nameof(GetCommentById)), _mapper.Map<CommentDTO>(await _service.AddComment(_mapper.Map<Comment>(createCommentDTO))));
             }
             catch (ArgumentException ex)
             {
