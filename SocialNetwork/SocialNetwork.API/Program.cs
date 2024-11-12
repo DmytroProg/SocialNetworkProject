@@ -11,7 +11,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddDbContext<SocialNetworkContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Local")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
