@@ -8,14 +8,14 @@ using SocialNetwork.Core.Models;
 
 namespace SocialNetwork.Core.Services
 {
-    internal class CommentService : ICommentService
+    public class CommentService : ICommentService
     {
-        public Task<Comment> AddComment(Comment comment)
+        public async Task<Comment> AddComment(Comment comment)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Comment> GetComment(int id)
+        public async Task<Comment> GetComment(int id)
         {
             throw new NotImplementedException();
         }
