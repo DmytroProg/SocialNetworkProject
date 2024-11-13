@@ -1,4 +1,3 @@
-using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Moq.EntityFrameworkCore;
@@ -127,7 +126,60 @@ public class UserServiceTests
         Assert.Equal(user.Nickname, result.Nickname);
         Assert.Equal(user.Password, result.Password);
     }
+    
+    #endregion
 
+    #region LogOut
+
+    [Fact]
+    public async Task LogOut_WithValidUser_ChangesLoggedInStatus()
+    {
+        // Arrange
+        var mockContext = new Mock<DbContext>();
+        var mockRepository = new Mock<IRepository>();
+        var user = new User { 
+            Id = 1, 
+            Nickname = "John", 
+            Password = TestConstants.ValidPassword
+        };
+        mockContext.Setup(ctx => ctx.Set<User>()).ReturnsDbSet([user]);
+        mockRepository.Setup(repo => repo.GetAll<User>()).Returns(mockContext.Object.Set<User>());
+    
+        var service = new UserService(mockRepository.Object);
+
+        // Act
+        await service.LogOut(user);
+        user = await service.GetUserById(1);
+
+        // Assert
+        Assert.False(user.IsLoggedIn);
+    }
+
+    #endregion
+
+    #region SignUp
+
+    [Fact]
+    public async Task SignUp_WithValidUser_()
+    {
+        // Arrange
+        var mockContext = new Mock<DbContext>();
+        var mockRepository = new Mock<IRepository>();
+        var user = new User { 
+            Nickname = "John", 
+            Password = TestConstants.ValidPassword
+        };
+        mockContext.Setup(ctx => ctx.Set<User>()).ReturnsDbSet([user]);
+        mockRepository.Setup(repo => repo.GetAll<User>()).Returns(mockContext.Object.Set<User>());
+    
+        var service = new UserService(mockRepository.Object);
+
+        // Act
+        var newUser = await service.SignUp(user);
+
+        // Assert
+        Assert.Equal(user, newUser);
+    }
 
     #endregion
 }
