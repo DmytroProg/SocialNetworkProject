@@ -1,8 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using Moq;
-using Moq.EntityFrameworkCore;
-using SocialNetwork.Core.Helpers;
-using SocialNetwork.Core.Interfaces;
 using SocialNetwork.Core.Models;
 using SocialNetwork.Core.Services;
 
@@ -78,8 +73,8 @@ public class UserServiceTests
     public async Task UpdateUser_WithValidUserId_UpdatesAndReturnsUser()
     {
         // Arrange
-        var user = new User { Id = 1, Nickname = "Name_1", Password = TestConstants.ValidPassword};
-        var updatedUser = new User { Id = 1, Nickname = "UpdatedName_1", Password = TestConstants.ValidPassword };
+        var user = new User { Id = 1, Nickname = "Name", Password = TestConstants.ValidPassword};
+        var updatedUser = new User { Id = 1, Nickname = "UpdatedName", Password = TestConstants.ValidPassword };
         var mockRepository = TestHelper.CreateRepository([user]);
         
         var service = new UserService(mockRepository);
@@ -104,12 +99,12 @@ public class UserServiceTests
     {
         // Arrange
         var user = new User { 
-            Nickname = "John_1", 
+            Nickname = "John", 
             Password = TestConstants.ValidPassword
         };
         var updatedUser = new User { 
             Id = 1,
-            Nickname = "John_1", 
+            Nickname = "John", 
             IsLoggedIn = true
         };
         var mockRepository = TestHelper.CreateRepository([user, updatedUser]);

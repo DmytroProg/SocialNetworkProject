@@ -2,7 +2,6 @@
 using Moq;
 using Moq.EntityFrameworkCore;
 using SocialNetwork.Core.Interfaces;
-using SocialNetwork.Core.Models;
 
 namespace SocialNetwork.Tests;
 
