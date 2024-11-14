@@ -28,8 +28,4 @@
       <ProjectReference Include="..\SocialNetwork.Core\SocialNetwork.Core.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Fakes\" />
-    </ItemGroup>
-
 </Project>

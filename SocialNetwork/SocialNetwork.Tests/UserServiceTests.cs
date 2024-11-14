@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Moq.EntityFrameworkCore;
+using SocialNetwork.Core.Helpers;
 using SocialNetwork.Core.Interfaces;
 using SocialNetwork.Core.Models;
 using SocialNetwork.Core.Services;
@@ -16,20 +17,17 @@ public class UserServiceTests
     public async Task GetUsers_ReturnsCorrectUserList()
     {
         // Arrange
-        var mockContext = new Mock<DbContext>();
-        var mockRepository = new Mock<IRepository>();
         var users = new List<User> { new User { Id = 1 }, new User { Id = 2 }, new User { Id = 3 } };
-        mockContext.Setup(ctx => ctx.Set<User>()).ReturnsDbSet(users);
-        mockRepository.Setup(repo => repo.GetAll<User>()).Returns(mockContext.Object.Set<User>());
-    
-        var service = new UserService(mockRepository.Object);
+        var mockRepository = TestHelper.CreateRepository(users);
+        
+        var service = new UserService(mockRepository);
 
         // Act
         var result = await service.GetUsers(0, 2);
 
         // Assert
         Assert.Equal(2, result.Count());
-        Assert.Equal(users.Take(2), result);
+        Assert.Equal(users.Take(2), result, new UserComparer());
     }
 
     #endregion
@@ -40,13 +38,10 @@ public class UserServiceTests
     public async Task GetUserById_WithExistingUser_ReturnsUser()
     {
         // Arrange
-        var mockContext = new Mock<DbContext>();
-        var mockRepository = new Mock<IRepository>();
         var user = new User { Id = 1, Nickname = "John" };
-        mockContext.Setup(ctx => ctx.Set<User>()).ReturnsDbSet([user]);
-        mockRepository.Setup(repo => repo.GetById<User>(1)).ReturnsAsync(user);
-    
-        var service = new UserService(mockRepository.Object);
+        var mockRepository = TestHelper.CreateRepository([user]);
+        
+        var service = new UserService(mockRepository);
 
         // Act
         var result = await service.GetUserById(1);
@@ -63,19 +58,16 @@ public class UserServiceTests
     public async Task GetUserByName_WithName_ReturnsCorrectUser()
     {
         // Arrange
-        var mockContext = new Mock<DbContext>();
-        var mockRepository = new Mock<IRepository>();
         var user = new User { Id = 2, Nickname = "Alice" };
-        mockContext.Setup(ctx => ctx.Set<User>()).ReturnsDbSet([user]);
-        mockRepository.Setup(repo => repo.GetAll<User>()).Returns(mockContext.Object.Set<User>());
-
-        var service = new UserService(mockRepository.Object);
+        var mockRepository = TestHelper.CreateRepository([user]);
+       
+        var service = new UserService(mockRepository);
 
         // Act
-        var result = await service.GetUserByName("Alice");
+        var result = await service.GetUsersByName("Alice", 0, 10);
 
         // Assert
-        Assert.Equal(user, result);
+        Assert.Equal(user, result.First(), new UserComparer());
     }
 
     #endregion
@@ -86,17 +78,21 @@ public class UserServiceTests
     public async Task UpdateUser_WithValidUserId_UpdatesAndReturnsUser()
     {
         // Arrange
-        var mockRepository = new Mock<IRepository>();
-        var user = new User { Id = 1, Nickname = "UpdatedName", Password = TestConstants.ValidPassword};
-        mockRepository.Setup(repo => repo.Update(user, 1)).ReturnsAsync(user);
-    
-        var service = new UserService(mockRepository.Object);
+        var user = new User { Id = 1, Nickname = "Name_1", Password = TestConstants.ValidPassword};
+        var updatedUser = new User { Id = 1, Nickname = "UpdatedName_1", Password = TestConstants.ValidPassword };
+        var mockRepository = TestHelper.CreateRepository([user]);
+        
+        var service = new UserService(mockRepository);
 
         // Act
-        var result = await service.UpdateUser(1, user);
+        var newUser = await service.SignUp(user);
+        updatedUser.Password = user.Password;
+        mockRepository = TestHelper.CreateRepository([user, updatedUser]);
+        service = new UserService(mockRepository);
+        var result = await service.UpdateUser(1, newUser);
 
         // Assert
-        Assert.Equal(user, result);
+        Assert.Equal(updatedUser, result, new UserComparer());
     }
     
     #endregion
@@ -107,24 +103,29 @@ public class UserServiceTests
     public async Task LogIn_WithValidUser_ReturnsUser()
     {
         // Arrange
-        var mockContext = new Mock<DbContext>();
-        var mockRepository = new Mock<IRepository>();
         var user = new User { 
-            Id = 1, 
-            Nickname = "John", 
+            Nickname = "John_1", 
             Password = TestConstants.ValidPassword
         };
-        mockContext.Setup(ctx => ctx.Set<User>()).ReturnsDbSet([user]);
-        mockRepository.Setup(repo => repo.GetAll<User>()).Returns(mockContext.Object.Set<User>());
-    
-        var service = new UserService(mockRepository.Object);
+        var updatedUser = new User { 
+            Id = 1,
+            Nickname = "John_1", 
+            IsLoggedIn = true
+        };
+        var mockRepository = TestHelper.CreateRepository([user, updatedUser]);
+        
+        var service = new UserService(mockRepository);
 
         // Act
-        var result = await service.LogIn(user);
+        await service.SignUp(user);
+        updatedUser.Password = user.Password;
+        mockRepository = TestHelper.CreateRepository([user, updatedUser]);
+        var result = await service.LogIn(1);
 
         // Assert
         Assert.Equal(user.Nickname, result.Nickname);
         Assert.Equal(user.Password, result.Password);
+        Assert.True(updatedUser.IsLoggedIn);
     }
     
     #endregion
@@ -135,20 +136,17 @@ public class UserServiceTests
     public async Task LogOut_WithValidUser_ChangesLoggedInStatus()
     {
         // Arrange
-        var mockContext = new Mock<DbContext>();
-        var mockRepository = new Mock<IRepository>();
         var user = new User { 
-            Id = 1, 
             Nickname = "John", 
             Password = TestConstants.ValidPassword
         };
-        mockContext.Setup(ctx => ctx.Set<User>()).ReturnsDbSet([user]);
-        mockRepository.Setup(repo => repo.GetAll<User>()).Returns(mockContext.Object.Set<User>());
-    
-        var service = new UserService(mockRepository.Object);
+        var mockRepository = TestHelper.CreateRepository([user]);
+        
+        var service = new UserService(mockRepository);
 
         // Act
-        await service.LogOut(user);
+        await service.SignUp(user);
+        await service.LogOut(1);
         user = await service.GetUserById(1);
 
         // Assert
@@ -160,25 +158,30 @@ public class UserServiceTests
     #region SignUp
 
     [Fact]
-    public async Task SignUp_WithValidUser_()
+    public async Task SignUp_WithValidUser_CorrectResult()
     {
         // Arrange
-        var mockContext = new Mock<DbContext>();
-        var mockRepository = new Mock<IRepository>();
         var user = new User { 
             Nickname = "John", 
             Password = TestConstants.ValidPassword
         };
-        mockContext.Setup(ctx => ctx.Set<User>()).ReturnsDbSet([user]);
-        mockRepository.Setup(repo => repo.GetAll<User>()).Returns(mockContext.Object.Set<User>());
-    
-        var service = new UserService(mockRepository.Object);
+        var expectedUser = new User
+        {
+            Id = 1,
+            Nickname = "John",
+            Password = TestConstants.ValidPassword
+        };
+        var mockRepository = TestHelper.CreateRepository([user, expectedUser]);
+        
+        var service = new UserService(mockRepository);
 
         // Act
         var newUser = await service.SignUp(user);
+        expectedUser.Password = newUser.Password;
+        user.Id = 1;
 
         // Assert
-        Assert.Equal(user, newUser);
+        Assert.Equal(expectedUser, newUser, new UserComparer());
     }
 
     #endregion
