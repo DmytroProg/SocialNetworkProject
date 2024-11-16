@@ -30,7 +30,7 @@ namespace SocialNetwork.Core.Services
         }
         public Task<Post> CreatePost(Post post)
         {
-            if (post.Description == null || post.LikesCount < 0)
+            if (post.Description == null || post.Description == "" || post.LikesCount < 0)
                 throw new ArgumentException("Invalid post build");  // TODO own types of exceptions
             return _repository.Add(post);
         }
