@@ -35,9 +35,8 @@ public class UserService : IUserService
     }
     public Task<User> UpdateUser(int id, User user)
     {
-        if (!IsUserValid(user))
+        if (!IsUserValid(user, true))
             throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
-        user.Password = HashManager.HashCreate(user.Password);
         return _repository.Update<User>(user,id);
     }
     public async Task<User> LogIn(int id)
@@ -58,18 +57,20 @@ public class UserService : IUserService
     }
     public Task<User> SignUp(User user)
     {
-        if (!IsUserValid(user))
+        if (!IsUserValid(user, false))
             throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
         user.Password = HashManager.HashCreate(user.Password);
         return _repository.Add(user);
     }
     #region Validation logic
-    private bool IsUserValid(User user)
+    private bool IsUserValid(User user, bool isUpdateMatter)
     {
-        // Cheks if a string has at least one latin character, at least one digit and only one '_' character. Other characters should be excluded
-        var isNicknameValid = new Regex(@"^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]*_[a-zA-Z\d]*$").IsMatch(user.Nickname);
-        // Cheks if a string has at least one lower-case latin character, at least one upper-case latin character and at least one digit. The string must be at least 8 characters long
+        // Checks if a string has at least one latin character, digit or '_' character. Other characters should be excluded
+        var isNicknameValid = new Regex(@"^[a-zA-Z0-9_]+$").IsMatch(user.Nickname);
+        // Checks if a string has at least one lower-case latin character, at least one upper-case latin character and at least one digit. The string must be at least 8 characters long
         var isPasswordValid = new Regex(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$").IsMatch(user.Password);
+        if (isUpdateMatter)
+            isPasswordValid = true;
         return isNicknameValid && isPasswordValid;
     }
     #endregion
