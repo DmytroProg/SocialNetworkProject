@@ -68,9 +68,7 @@ public class UserService : IUserService
         // Checks if a string has at least one latin character, digit or '_' character. Other characters should be excluded
         var isNicknameValid = new Regex(@"^[a-zA-Z0-9_]+$").IsMatch(user.Nickname);
         // Checks if a string has at least one lower-case latin character, at least one upper-case latin character and at least one digit. The string must be at least 8 characters long
-        var isPasswordValid = new Regex(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$").IsMatch(user.Password);
-        if (isUpdateMatter)
-            isPasswordValid = true;
+        var isPasswordValid = isUpdateMatter || new Regex(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$").IsMatch(user.Password);
         return isNicknameValid && isPasswordValid;
     }
     #endregion
