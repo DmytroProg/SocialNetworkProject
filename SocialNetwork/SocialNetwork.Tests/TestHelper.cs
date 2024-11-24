@@ -18,7 +18,7 @@ public static class TestHelper
         mockRepository.Setup(repo => repo.GetAll<T>()).Returns(mockContext.Object.Set<T>());
         mockRepository.Setup(repo => repo.GetById<T>(1)).ReturnsAsync(entity);
         mockRepository.Setup(repo => repo.Add(entity)).ReturnsAsync(entity);
-        mockRepository.Setup(repo => repo.Update(entity, 1)).ReturnsAsync(entityToUpdate);
+        mockRepository.Setup(repo => repo.Update(entity)).ReturnsAsync(entityToUpdate);
 
         return mockRepository.Object;
     }
