@@ -1,4 +1,5 @@
-﻿using SocialNetwork.Core.Interfaces;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+using SocialNetwork.Core.Interfaces;
 
 namespace SocialNetwork.Storage.Data;
 
@@ -23,29 +24,24 @@ public class Repository : IRepository
         return entity;
     }
 
-    public async Task<T> Update<T>(T new_data, int id) where T : class
+    public async Task<T> Update<T>(T new_data) where T : class
     {
-        var entity = await GetById<T>(id);
-        _socialNetworkContext.Entry(entity).CurrentValues.SetValues(new_data);
+        var entityEntry = _socialNetworkContext.Update(new_data);
         await _socialNetworkContext.SaveChangesAsync();
-        return entity;
+        return entityEntry.Entity;
     }
 
-    public async Task<T> GetById<T>(int id) where T : class
+    public async Task<T?> GetById<T>(int id) where T : class
     {
         var entity = await _socialNetworkContext.Set<T>().FindAsync(id);
-
-        if (entity == null)
-        {
-            throw new Exception($"Entity with ID: {id} not found.");
-        }
-
         return entity;
     }
 
     public async Task Delete<T>(int id) where T : class 
     {
         var entity = await GetById<T>(id);
+        if (entity == null)
+            throw new Exception("Entity not found");
         _socialNetworkContext.Set<T>().Remove(entity);
         await _socialNetworkContext.SaveChangesAsync();
     }

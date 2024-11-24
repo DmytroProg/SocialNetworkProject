@@ -19,7 +19,7 @@ namespace SocialNetwork.API.Controllers
             _mapper = mapper;
         }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PostDTO>>> GetPosts([FromQuery] bool isFiltered, [FromQuery] int skip, [FromQuery] int take)
+        public async Task<ActionResult<IEnumerable<PostDTO>>> GetPosts([FromQuery] bool isFiltered, [FromQuery] int skip = 0, [FromQuery] int take = 10)
         {
             try
             {
@@ -44,11 +44,11 @@ namespace SocialNetwork.API.Controllers
             }
         }
         [HttpPost]
-        public async Task<ActionResult<PostDTO>> CreatePost([FromBody] PostDTO postDto)
+        public async Task<ActionResult<PostDTO>> CreatePost([FromBody] CreatePostDTO createPostDto)
         {
             try
             {
-                return Created(Url.Action(nameof(GetPostById)),_mapper.Map<PostDTO>(await _service.CreatePost(_mapper.Map<Post>(postDto))));
+                return Created(Url.Action(nameof(GetPostById)),_mapper.Map<PostDTO>(await _service.CreatePost(_mapper.Map<Post>(createPostDto))));
             }
             catch (ArgumentException ex)
             {

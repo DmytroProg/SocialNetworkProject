@@ -37,7 +37,8 @@ public class UserService : IUserService
     {
         if (!IsUserValid(user, true))
             throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
-        return _repository.Update<User>(user,id);
+        user.Id = id;
+        return _repository.Update<User>(user);
     }
     public async Task<User> LogIn(int id)
     {
@@ -45,7 +46,7 @@ public class UserService : IUserService
         if (targetUser == null)
             throw new ArgumentException("User not found");
         targetUser.IsLoggedIn = true;
-        return await _repository.Update<User>(targetUser, id);
+        return await _repository.Update<User>(targetUser);
     }
     public async Task LogOut(int id)
     {
@@ -53,7 +54,7 @@ public class UserService : IUserService
         if (targetUser == null)
             throw new ArgumentException("User not found");
         targetUser.IsLoggedIn = false;
-        await _repository.Update<User>(targetUser, id);
+        await _repository.Update<User>(targetUser);
     }
     public Task<User> SignUp(User user)
     {
