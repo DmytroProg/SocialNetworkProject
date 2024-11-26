@@ -1,6 +1,6 @@
 ﻿using SocialNetwork.Core.Interfaces;
 
-namespace SocialNetwork.API.Data;
+namespace SocialNetwork.Storage.Data;
 
 public class Repository : IRepository
 {

@@ -25,6 +25,16 @@ public class UserService : IUserService
             throw new ArgumentException("User not found"); // TODO own types of exceptions
         return user;
     }
+    public async Task<User> GetUserByName(string name)
+    {
+        var user = await _repository.GetAll<User>()
+            .SingleOrDefaultAsync(u => u.Nickname.Contains(name));
+        if (user == null)
+        {
+            throw new ArgumentException("User not found");
+        }
+        return user;
+    }
     public async Task<IEnumerable<User>> GetUsersByName(string name, int skip, int take)
     {
         return await _repository.GetAll<User>()
@@ -35,18 +45,19 @@ public class UserService : IUserService
     }
     public Task<User> UpdateUser(int id, User user)
     {
-        if (!IsUserValid(user))
+        if (!IsUserValid(user, true))
             throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
-        user.Password = HashManager.HashCreate(user.Password);
         return _repository.Update<User>(user,id);
     }
-    public async Task<User> LogIn(int id)
+    public async Task<User> LogIn(string nickname, string password)
     {
-        var targetUser = await _repository.GetById<User>(id);
-        if (targetUser == null)
-            throw new ArgumentException("User not found");
+        var targetUser = await GetUserByName(nickname);
+        if (!HashManager.HashCompare(password, targetUser.CreatedAt, targetUser.Password))
+        {
+            throw new ArgumentException("Wrong password");
+        }    
         targetUser.IsLoggedIn = true;
-        return await _repository.Update<User>(targetUser, id);
+        return await _repository.Update<User>(targetUser, targetUser.Id);
     }
     public async Task LogOut(int id)
     {
@@ -58,18 +69,19 @@ public class UserService : IUserService
     }
     public Task<User> SignUp(User user)
     {
-        if (!IsUserValid(user))
+        user.CreatedAt = DateTime.UtcNow;
+        if (!IsUserValid(user, false))
             throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
-        user.Password = HashManager.HashCreate(user.Password);
+        user.Password = HashManager.HashCreate(user.Password, user.CreatedAt);
         return _repository.Add(user);
     }
     #region Validation logic
-    private bool IsUserValid(User user)
+    private bool IsUserValid(User user, bool isUpdateMatter)
     {
-        // Cheks if a string has at least one latin character, at least one digit and only one '_' character. Other characters should be excluded
-        var isNicknameValid = new Regex(@"^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]*_[a-zA-Z\d]*$").IsMatch(user.Nickname);
-        // Cheks if a string has at least one lower-case latin character, at least one upper-case latin character and at least one digit. The string must be at least 8 characters long
-        var isPasswordValid = new Regex(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$").IsMatch(user.Password);
+        // Checks if a string has at least one latin character, digit or '_' character. Other characters should be excluded
+        var isNicknameValid = new Regex(@"^[a-zA-Z0-9_]+$").IsMatch(user.Nickname);
+        // Checks if a string has at least one lower-case latin character, at least one upper-case latin character and at least one digit. The string must be at least 8 characters long
+        var isPasswordValid = isUpdateMatter || new Regex(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$").IsMatch(user.Password);
         return isNicknameValid && isPasswordValid;
     }
     #endregion

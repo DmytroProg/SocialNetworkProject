@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SocialNetwork.Core.Models;
 
-namespace SocialNetwork.API.Data
+namespace SocialNetwork.Storage.Data
 {
     public class SocialNetworkContext: DbContext
     {
