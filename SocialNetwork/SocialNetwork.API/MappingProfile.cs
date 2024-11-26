@@ -11,6 +11,8 @@ namespace SocialNetwork.API
             CreateMap<Post, PostDTO>().ReverseMap();
             CreateMap<Post, CreatePostDTO>().ReverseMap();
             CreateMap<User, UserDTO>().ReverseMap();
+            CreateMap<Comment, CommentDTO>().ReverseMap();
+            CreateMap<Comment, CreateCommentDTO>().ReverseMap();
             CreateMap<User, CreateUserDTO>().ReverseMap();
         }
     }
