@@ -50,8 +50,8 @@ public class UserController : ControllerBase
     }
     #endregion
     #region Post Methods
-    [HttpPost]
-    public async Task<ActionResult<UserDTO>> CreateUser([FromBody] CreateUserDTO createUserDto)
+    [HttpPost("CreateUser")]
+    public async Task<ActionResult<UserDTO>> CreateUser([FromBody]UserDTO userDto)
     {
         try
         {
@@ -81,11 +81,11 @@ public class UserController : ControllerBase
     #endregion
     #region Patch Methods
     [HttpPatch("login")]
-    public async Task<ActionResult<UserDTO>> LogInUser([FromRoute]int id)
+    public async Task<ActionResult<UserDTO>> LogInUser([FromBody]UserLoginDTO loginInfo)
     {
         try
         {
-            return Ok( _mapper.Map<UserDTO>(await _service.LogIn(id)));
+            return Ok( _mapper.Map<UserDTO>(await _service.LogIn(loginInfo.Login, loginInfo.Password)));
         }
         catch (ArgumentException ex)
         {

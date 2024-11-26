@@ -22,11 +22,9 @@ namespace SocialNetwork.Core.Helpers
             }
         }
 
-        public static string HashCreate(object data)
+        public static string HashCreate(object data, DateTime salt)
         {
-            var salt = DateTime.UtcNow.ToString("yyyyMMddHHmmssffff");
-
-            var dataBytes = Encoding.UTF8.GetBytes(data.ToString() + salt);
+            var dataBytes = Encoding.UTF8.GetBytes(data.ToString() + salt.ToString("yyyyMMddHHmmssffff"));
 
             return GenerateHash(dataBytes);
         }
@@ -35,7 +33,7 @@ namespace SocialNetwork.Core.Helpers
 
         private static string RecoverHash(object data, DateTime dateTime)
         {
-            var dataBytes = Encoding.UTF8.GetBytes(data.ToString() + dateTime);
+            var dataBytes = Encoding.UTF8.GetBytes(data.ToString() + dateTime.ToString("yyyyMMddHHmmssffff"));
 
             return GenerateHash(dataBytes);
         }

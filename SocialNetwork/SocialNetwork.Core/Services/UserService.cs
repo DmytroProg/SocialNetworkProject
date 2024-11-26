@@ -25,6 +25,16 @@ public class UserService : IUserService
             throw new ArgumentException("User not found"); // TODO own types of exceptions
         return user;
     }
+    public async Task<User> GetUserByName(string name)
+    {
+        var user = await _repository.GetAll<User>()
+            .SingleOrDefaultAsync(u => u.Nickname.Contains(name));
+        if (user == null)
+        {
+            throw new ArgumentException("User not found");
+        }
+        return user;
+    }
     public async Task<IEnumerable<User>> GetUsersByName(string name, int skip, int take)
     {
         return await _repository.GetAll<User>()
@@ -39,13 +49,15 @@ public class UserService : IUserService
             throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
         return _repository.Update<User>(user,id);
     }
-    public async Task<User> LogIn(int id)
+    public async Task<User> LogIn(string nickname, string password)
     {
-        var targetUser = await _repository.GetById<User>(id);
-        if (targetUser == null)
-            throw new ArgumentException("User not found");
+        var targetUser = await GetUserByName(nickname);
+        if (!HashManager.HashCompare(password, targetUser.CreatedAt, targetUser.Password))
+        {
+            throw new ArgumentException("Wrong password");
+        }    
         targetUser.IsLoggedIn = true;
-        return await _repository.Update<User>(targetUser, id);
+        return await _repository.Update<User>(targetUser, targetUser.Id);
     }
     public async Task LogOut(int id)
     {
@@ -57,9 +69,10 @@ public class UserService : IUserService
     }
     public Task<User> SignUp(User user)
     {
+        user.CreatedAt = DateTime.UtcNow;
         if (!IsUserValid(user, false))
             throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
-        user.Password = HashManager.HashCreate(user.Password);
+        user.Password = HashManager.HashCreate(user.Password, user.CreatedAt);
         return _repository.Add(user);
     }
     #region Validation logic
