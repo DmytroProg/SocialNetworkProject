@@ -55,8 +55,8 @@ public class UserController : ControllerBase
     {
         try
         {
-            var createdUser = await _service.SignUp(_mapper.Map<User>(userDto));
-            return Created(Url.Action(nameof(GetUserbyId), new { id = createdUser.Id }), userDto);
+            var createdUser = await _service.SignUp(_mapper.Map<User>(createUserDto));
+            return Created(Url.Action(nameof(GetUserbyId), new { id = createdUser.Id }), _mapper.Map<UserDTO>(createdUser));
         }
         catch (ArgumentException ex)
         {
@@ -65,13 +65,13 @@ public class UserController : ControllerBase
     }
     #endregion
     #region Put Methods
-    [HttpPut]
-    public async Task<ActionResult<UserDTO>> UpdateUser([FromRoute] int id, [FromBody]UserDTO userDto)
+    [HttpPut("{id}")]
+    public async Task<ActionResult<UserDTO>> UpdateUser([FromRoute] int id, [FromBody] CreateUserDTO createUserDto)
     {
         try
         {
-            var updatedUser = await _service.UpdateUser(id, _mapper.Map<User>(userDto));
-            return Created(Url.Action(nameof(GetUserbyId), new { id = updatedUser.Id }), userDto);
+            var updatedUser = await _service.UpdateUser(id, _mapper.Map<User>(createUserDto));
+            return Created(Url.Action(nameof(GetUserbyId), new { id = updatedUser.Id }), _mapper.Map<UserDTO>(updatedUser));
         }
         catch(ArgumentException ex)
         {

@@ -8,10 +8,10 @@ namespace SocialNetwork.API
     {
         public MappingProfile()
         {
-            CreateMap<Post, PostDTO>()
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.User.Id))
-                .ReverseMap();
+            CreateMap<Post, PostDTO>().ReverseMap();
+            CreateMap<Post, CreatePostDTO>().ReverseMap();
             CreateMap<User, UserDTO>().ReverseMap();
+            CreateMap<User, CreateUserDTO>().ReverseMap();
         }
     }
 }
