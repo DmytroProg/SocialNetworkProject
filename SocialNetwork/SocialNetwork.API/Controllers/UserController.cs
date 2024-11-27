@@ -55,7 +55,7 @@ public class UserController : ControllerBase
     {
         try
         {
-            var createdUser = await _service.SignUp(_mapper.Map<User>(createUserDto));
+            var createdUser = await _service.SignUp(_mapper.Map<User>(userDto));
             return Created(Url.Action(nameof(GetUserbyId), new { id = createdUser.Id }), _mapper.Map<UserDTO>(createdUser));
         }
         catch (ArgumentException ex)
