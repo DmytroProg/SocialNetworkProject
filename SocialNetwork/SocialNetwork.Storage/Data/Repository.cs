@@ -37,7 +37,7 @@ public class Repository : IRepository
 
         if (entity == null)
         {
-            throw new Exception($"Entity with ID: {id} not found.");
+            throw new ArgumentException($"Entity with ID: {id} not found.");
         }
 
         return entity;
