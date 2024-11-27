@@ -40,11 +40,7 @@ public class UserService : IUserService
     {
         var user = await _repository.GetAll<User>()
             .SingleOrDefaultAsync(u => u.Nickname.Equals(name));
-        if (user == null)
-        {
-            return true;
-        }
-        return false;
+        return user == null;
     }
     public async Task<IEnumerable<User>> GetUsersByName(string name, int skip, int take)
     {
@@ -97,13 +93,8 @@ public class UserService : IUserService
         // Checks if a string has at least one lower-case latin character, at least one upper-case latin character and at least one digit. The string must be at least 8 characters long
         var isPasswordValid = new Regex(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$").IsMatch(user.Password);
 
-        if (isCreating)
+        if (isCreating && !await IsNicknameUnique(user.Nickname))
         {
-            var username = await IsNicknameUnique(user.Nickname); 
-            if (username == true)
-            {
-                return isNicknameValid && isPasswordValid;
-            }
             throw new ArgumentException("Nickname already claimed");
         }
         return isNicknameValid && isPasswordValid;
