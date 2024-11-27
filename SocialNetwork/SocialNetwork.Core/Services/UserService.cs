@@ -3,6 +3,7 @@ using SocialNetwork.Core.Models;
 using SocialNetwork.Core.Helpers;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using System.Xml.Linq;
 namespace SocialNetwork.Core.Services;
 public class UserService : IUserService
 {
@@ -28,12 +29,18 @@ public class UserService : IUserService
     public async Task<User> GetUserByName(string name)
     {
         var user = await _repository.GetAll<User>()
-            .SingleOrDefaultAsync(u => u.Nickname.Contains(name));
+            .SingleOrDefaultAsync(u => u.Nickname.Equals(name));
         if (user == null)
         {
             throw new ArgumentException("User not found");
         }
         return user;
+    }
+    public async Task<bool> IsNicknameUnique(string name)
+    {
+        var user = await _repository.GetAll<User>()
+            .SingleOrDefaultAsync(u => u.Nickname.Equals(name));
+        return user == null;
     }
     public async Task<IEnumerable<User>> GetUsersByName(string name, int skip, int take)
     {
@@ -43,11 +50,11 @@ public class UserService : IUserService
             .Take(take)
             .ToArrayAsync();
     }
-    public Task<User> UpdateUser(int id, User user)
+    public async Task<User> UpdateUser(int id, User user)
     {
-        if (!IsUserValid(user, true))
+        if (! await IsUserValid(user, false))
             throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
-        return _repository.Update<User>(user,id);
+        return await _repository.Update<User>(user,id);
     }
     public async Task<User> LogIn(string nickname, string password)
     {
@@ -67,21 +74,29 @@ public class UserService : IUserService
         targetUser.IsLoggedIn = false;
         await _repository.Update<User>(targetUser, id);
     }
-    public Task<User> SignUp(User user)
+    public async Task<User> SignUp(User user)
     {
         user.CreatedAt = DateTime.UtcNow;
-        if (!IsUserValid(user, false))
+        if (! await IsUserValid(user, true))
+        {
             throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
+        }
+
         user.Password = HashManager.HashCreate(user.Password, user.CreatedAt);
-        return _repository.Add(user);
+        return await _repository.Add(user);
     }
     #region Validation logic
-    private bool IsUserValid(User user, bool isUpdateMatter)
+    private async Task<bool> IsUserValid(User user, bool isCreating)
     {
         // Checks if a string has at least one latin character, digit or '_' character. Other characters should be excluded
         var isNicknameValid = new Regex(@"^[a-zA-Z0-9_]+$").IsMatch(user.Nickname);
         // Checks if a string has at least one lower-case latin character, at least one upper-case latin character and at least one digit. The string must be at least 8 characters long
-        var isPasswordValid = isUpdateMatter || new Regex(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$").IsMatch(user.Password);
+        var isPasswordValid = new Regex(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$").IsMatch(user.Password);
+
+        if (isCreating && !await IsNicknameUnique(user.Nickname))
+        {
+            throw new ArgumentException("Nickname already claimed");
+        }
         return isNicknameValid && isPasswordValid;
     }
     #endregion
