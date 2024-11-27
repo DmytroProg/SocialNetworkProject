@@ -51,11 +51,11 @@ public class UserController : ControllerBase
     #endregion
     #region Post Methods
     [HttpPost("CreateUser")]
-    public async Task<ActionResult<UserDTO>> CreateUser([FromBody]UserDTO userDto)
+    public async Task<ActionResult<UserDTO>> CreateUser([FromBody]CreateUserDTO createUserDto)
     {
         try
         {
-            var createdUser = await _service.SignUp(_mapper.Map<User>(userDto));
+            var createdUser = await _service.SignUp(_mapper.Map<User>(createUserDto));
             return Created(Url.Action(nameof(GetUserbyId), new { id = createdUser.Id }), _mapper.Map<UserDTO>(createdUser));
         }
         catch (ArgumentException ex)
