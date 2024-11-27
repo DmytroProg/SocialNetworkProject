@@ -92,7 +92,7 @@ public class UserController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
-    [HttpPatch("logout")]
+    [HttpPatch("logout{id}")]
     public async Task<ActionResult> LogOutUser([FromRoute] int id)
     {
         try
