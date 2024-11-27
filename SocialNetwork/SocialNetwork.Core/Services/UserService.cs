@@ -3,6 +3,7 @@ using SocialNetwork.Core.Models;
 using SocialNetwork.Core.Helpers;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using System.Xml.Linq;
 namespace SocialNetwork.Core.Services;
 public class UserService : IUserService
 {
@@ -35,6 +36,16 @@ public class UserService : IUserService
         }
         return user;
     }
+    public async Task<User?> CheckUniquenessOfNickname(string name)
+    {
+        var user = await _repository.GetAll<User>()
+            .SingleOrDefaultAsync(u => u.Nickname.Contains(name));
+        if (user == null)
+        {
+            return null;
+        }
+        return user;
+    }
     public async Task<IEnumerable<User>> GetUsersByName(string name, int skip, int take)
     {
         return await _repository.GetAll<User>()
@@ -45,7 +56,7 @@ public class UserService : IUserService
     }
     public Task<User> UpdateUser(int id, User user)
     {
-        if (!IsUserValid(user, true))
+        if (!IsUserValid(user, false))
             throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
         return _repository.Update<User>(user,id);
     }
@@ -70,18 +81,28 @@ public class UserService : IUserService
     public Task<User> SignUp(User user)
     {
         user.CreatedAt = DateTime.UtcNow;
-        if (!IsUserValid(user, false))
+        if (!IsUserValid(user, true))
             throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
         user.Password = HashManager.HashCreate(user.Password, user.CreatedAt);
         return _repository.Add(user);
     }
     #region Validation logic
-    private bool IsUserValid(User user, bool isUpdateMatter)
+    private bool IsUserValid(User user, bool isCreating)
     {
         // Checks if a string has at least one latin character, digit or '_' character. Other characters should be excluded
         var isNicknameValid = new Regex(@"^[a-zA-Z0-9_]+$").IsMatch(user.Nickname);
         // Checks if a string has at least one lower-case latin character, at least one upper-case latin character and at least one digit. The string must be at least 8 characters long
-        var isPasswordValid = isUpdateMatter || new Regex(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$").IsMatch(user.Password);
+        var isPasswordValid = new Regex(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$").IsMatch(user.Password);
+
+        if (isCreating)
+        {
+            var username = CheckUniquenessOfNickname(user.Nickname); 
+            if (username.Result == null)
+            {
+                return isNicknameValid && isPasswordValid;
+            }
+            throw new ArgumentException("Nickname already claimed");
+        }
         return isNicknameValid && isPasswordValid;
     }
     #endregion
