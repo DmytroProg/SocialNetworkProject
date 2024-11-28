@@ -1,11 +1,10 @@
-sn-comment-service
 ﻿using Microsoft.EntityFrameworkCore;
 using SocialNetwork.Core.Interfaces;
 using SocialNetwork.Core.Models;
 
 namespace SocialNetwork.Core.Services;
 
-public class CommentService : ICommentServise
+public class CommentService : ICommentService
 {
 	private readonly IRepository _repository;
 	public CommentService(IRepository repository)
@@ -19,6 +18,8 @@ public class CommentService : ICommentServise
 		{
 			throw new ArgumentNullException(nameof(comment), "Comment can't be empty");
 		}
+		comment.CreatedAt = DateTime.UtcNow;
+		
 		return _repository.Add(comment);
 	}
 
@@ -36,12 +37,7 @@ public class CommentService : ICommentServise
 
 	public async Task<IEnumerable<Comment>> GetComments(int postId)
 	{
-		var comments = await _repository.GetAll<Comment>().Where(c => c.PostId == postId).ToListAsync();
-
-		if (!comments.Any())
-		{
-			throw new KeyNotFoundException($"No comments found for Post ID {postId}.");
-		}
+		var comments = await _repository.GetAll<Comment>().Where(c => c.PostId == postId).ToArrayAsync();
 
 		return comments;
 	}
