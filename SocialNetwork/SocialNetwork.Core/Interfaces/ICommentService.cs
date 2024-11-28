@@ -1,10 +1,9 @@
 ﻿using SocialNetwork.Core.Models;
+namespace SocialNetwork.Core.Interfaces;
 
-namespace SocialNetwork.Core.Interfaces
+public interface ICommentService
 {
-    public interface ICommentService
-    {
-        Task<Comment> AddComment(Comment comment);
-        Task<Comment> GetComment(int id);
-    }
+	Task<Comment> AddComment(Comment comment);
+	Task<Comment> GetComment(int id);
+	Task<IEnumerable<Comment>> GetComments(int postId);
 }

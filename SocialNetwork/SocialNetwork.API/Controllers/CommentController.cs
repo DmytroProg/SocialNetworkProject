@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using SocialNetwork.Core.DTOs;
+﻿using SocialNetwork.Core.DTOs;
 using SocialNetwork.Core.Interfaces;
 using SocialNetwork.Core.Models;
 using Microsoft.AspNetCore.Mvc;

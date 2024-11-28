@@ -2,6 +2,7 @@ using Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using SocialNetwork.Core.Interfaces;
+using SocialNetwork.Core.Models;
 using SocialNetwork.Core.Services;
 using SocialNetwork.Storage.Data;
 
@@ -26,6 +27,7 @@ builder.Services.AddDbContext<SocialNetworkContext>(options => options.UseSqlSer
 builder.Services.AddScoped<IRepository, Repository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 
 
 var app = builder.Build();
