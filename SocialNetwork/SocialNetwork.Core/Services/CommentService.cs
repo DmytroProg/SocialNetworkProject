@@ -1,3 +1,4 @@
+sn-comment-service
 ﻿using Microsoft.EntityFrameworkCore;
 using SocialNetwork.Core.Interfaces;
 using SocialNetwork.Core.Models;
