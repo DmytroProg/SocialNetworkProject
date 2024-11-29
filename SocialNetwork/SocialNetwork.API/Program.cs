@@ -8,7 +8,7 @@ using SocialNetwork.Storage.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 var keyVaultEndpoint = new Uri(builder.Configuration["VaultUri"]);
-builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
+//builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
 
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddControllers();
@@ -17,10 +17,10 @@ builder.Services.AddSwaggerGen();
 
 
 //Local DB
-//builder.Services.AddDbContext<SocialNetworkContext>(options => options.UseSqlServer(builder.Configuration["ConnectionStrings:Local"]));
+builder.Services.AddDbContext<SocialNetworkContext>(options => options.UseSqlServer(builder.Configuration["ConnectionStrings:Local"]));
 
 // Hosted DB
-builder.Services.AddDbContext<SocialNetworkContext>(options => options.UseSqlServer(builder.Configuration["Develop"]));
+//builder.Services.AddDbContext<SocialNetworkContext>(options => options.UseSqlServer(builder.Configuration["Develop"]));
 
 
 builder.Services.AddScoped<IRepository, Repository>();

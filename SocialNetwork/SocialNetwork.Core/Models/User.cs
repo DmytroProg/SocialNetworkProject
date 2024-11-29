@@ -1,4 +1,6 @@
-﻿namespace SocialNetwork.Core.Models;
+﻿using SocialNetwork.Core.Helpers;
+
+namespace SocialNetwork.Core.Models;
 
 public class User
 {
@@ -6,6 +8,7 @@ public class User
     public string Nickname { get; set; }
     public string Password { get; set; }
     public string? PhoneNumber { get; set; }
+    public OnlineStatus OnlineStatus { get; set; }
     public bool IsLoggedIn { get; set; }
     public string? UserDescription { get; set; }
     public string? UserIconFileName { get; set; }
