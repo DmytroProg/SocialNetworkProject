@@ -16,10 +16,15 @@ namespace SocialNetwork.Core.Helpers
             Offline,
         }
         public DateTime LastLoggedIn;
-        OnlineStatus(DateTime dateTime)
+        public OnlineStatus(DateTime dateTime)
         {
             status = Status.Offline;
             LastLoggedIn = dateTime;
+        }
+        public OnlineStatus()
+        {
+            status = Status.Offline;
+            LastLoggedIn = DateTime.UtcNow;
         }
     }
 }

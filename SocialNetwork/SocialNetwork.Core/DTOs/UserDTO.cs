@@ -1,4 +1,5 @@
-﻿using SocialNetwork.Core.Models;
+﻿using SocialNetwork.Core.Helpers;
+using SocialNetwork.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace SocialNetwork.Core.DTOs
         public int Id { get; set; }
         public string Nickname { get; set; }
         public string? PhoneNumber { get; set; }
-        public bool IsLoggedIn { get; set; }
+        public OnlineStatus UserOnlineStatus { get; set; }
         public string? UserDescription { get; set; }
         public string? UserIconFileName { get; set; }
     }
