@@ -12,15 +12,17 @@ public class CommentService : ICommentService
 		_repository = repository;
 	}
 
-	public Task<Comment> AddComment(Comment comment)
+	public async Task<Comment> AddComment(Comment comment)
 	{
-		if (comment == null)
+		_ = await _repository.GetById<User>(comment.UserId);
+		_ = await _repository.GetById<Post>(comment.PostId);
+        if (string.IsNullOrEmpty(comment.Text))
 		{
-			throw new ArgumentNullException(nameof(comment), "Comment can't be empty");
+			throw new ArgumentException("Comment can't be empty");
 		}
 		comment.CreatedAt = DateTime.UtcNow;
 		
-		return _repository.Add(comment);
+		return await _repository.Add(comment);
 	}
 
 	public async Task<Comment> GetComment(int id)
