@@ -14,6 +14,7 @@ namespace SocialNetwork.Core.DTOs
         public string Nickname { get; set; }
         public string? PhoneNumber { get; set; }
         public OnlineStatus UserOnlineStatus { get; set; }
+        public DateTime LastLoggedIn { get; set; }
         public string? UserDescription { get; set; }
         public string? UserIconFileName { get; set; }
     }

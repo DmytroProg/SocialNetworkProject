@@ -63,8 +63,8 @@ public class UserService : IUserService
         {
             throw new ArgumentException("Wrong password");
         }    
-        targetUser.UserOnlineStatus.status = OnlineStatus.Status.Online;
-        targetUser.UserOnlineStatus.LastLoggedIn = DateTime.UtcNow;
+        targetUser.UserOnlineStatus = OnlineStatus.Online;
+        targetUser.LastLoggedIn = DateTime.UtcNow;
         return await _repository.Update<User>(targetUser, targetUser.Id);
     }
     public async Task LogOut(int id)
@@ -72,8 +72,8 @@ public class UserService : IUserService
         var targetUser = await _repository.GetById<User>(id);
         if (targetUser == null)
             throw new ArgumentException("User not found");
-        targetUser.UserOnlineStatus.status = OnlineStatus.Status.Offline;
-        targetUser.UserOnlineStatus.LastLoggedIn = DateTime.UtcNow;
+        targetUser.UserOnlineStatus = OnlineStatus.Offline;
+        targetUser.LastLoggedIn = DateTime.UtcNow;
         await _repository.Update<User>(targetUser, id);
     }
     public async Task<User> SignUp(User user)
@@ -83,7 +83,7 @@ public class UserService : IUserService
             throw new ArgumentException("User credentials aren't valid"); // TODO own types of exceptions
         }
         user.CreatedAt = DateTime.UtcNow;
-        user.UserOnlineStatus.LastLoggedIn = user.CreatedAt;
+        user.LastLoggedIn = user.CreatedAt;
         user.Password = HashManager.HashCreate(user.Password, user.CreatedAt);
         return await _repository.Add(user);
     }
