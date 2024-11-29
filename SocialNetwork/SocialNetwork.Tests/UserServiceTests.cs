@@ -1,3 +1,4 @@
+using SocialNetwork.Core.Helpers;
 using SocialNetwork.Core.Models;
 using SocialNetwork.Core.Services;
 
@@ -100,12 +101,12 @@ public class UserServiceTests
         // Arrange
         var user = new User { 
             Nickname = "John", 
-            Password = TestConstants.ValidPassword
+            Password = TestConstants.ValidPassword,
         };
         var updatedUser = new User { 
             Id = 1,
-            Nickname = "John", 
-            IsLoggedIn = true
+            Nickname = "John",
+            LastLoggedIn = DateTime.UtcNow,
         };
         var mockRepository = TestHelper.CreateRepository([user, updatedUser]);
         
@@ -115,12 +116,12 @@ public class UserServiceTests
         await service.SignUp(user);
         updatedUser.Password = user.Password;
         mockRepository = TestHelper.CreateRepository([user, updatedUser]);
-        var result = await service.LogIn(1);
+        var result = await service.LogIn("1", "1");
 
         // Assert
         Assert.Equal(user.Nickname, result.Nickname);
         Assert.Equal(user.Password, result.Password);
-        Assert.True(updatedUser.IsLoggedIn);
+        Assert.True(updatedUser.UserOnlineStatus == OnlineStatus.Online);
     }
     
     #endregion
@@ -145,7 +146,7 @@ public class UserServiceTests
         user = await service.GetUserById(1);
 
         // Assert
-        Assert.False(user.IsLoggedIn);
+        Assert.False(user.UserOnlineStatus == OnlineStatus.Offline);
     }
 
     #endregion
